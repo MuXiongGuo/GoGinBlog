@@ -8,6 +8,7 @@ import (
 	"github.com/EGGYC/go-gin-example/pkg/setting"
 )
 
+// GetPage 分页工具包 实现获取分页参数，传入page后根据setting中的设置得到res，res为models中的db查询时offset的数量
 // GetPage 分页页码的获取方法
 func GetPage(c *gin.Context) int {
 	result := 0
