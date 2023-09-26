@@ -1,0 +1,60 @@
+###############docker相关
+# 在go-gin-example根目录下使用，构建docker image（镜像）
+docker build -t gin-blog-docker .
+
+# 根据指定镜像创建容器并运行
+docker run -p 8000:8000 gin-blog-docker
+
+# 拉取镜像
+docker pull mysql
+
+# 运行mysql容器 设置端口和密码
+docker run --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=rootroot -d mysql
+
+# 挂载mysql数据卷到指定文件夹
+docker run --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=rootroot -v D:/NewGo/go-gin-example/data2/docker-mysql:/var/lib/mysql -d mysql
+
+# docker指令
+docker rm，docker stop，docker ps -a
+
+# 删除镜像 并解除与其有关系的容器
+docker rmi -f gin-blog-docker
+
+# 关联运行 go-gin-example和mysql容器两个一起运行
+docker run --link mysql:mysql -p 8000:8000 gin-blog-docker
+
+# 查看内存占用
+docker ps -as | grep gin-blog-docker
+
+# docker file 内容
+FROM golang:latest
+
+ENV GOPROXY https://goproxy.cn,direct
+WORKDIR $GOPATH/src/github.com/EGGYC/go-gin-example
+COPY . $GOPATH/src/github.com/EGGYC/go-gin-example
+RUN go build .
+
+EXPOSE 8000
+ENTRYPOINT ["./go-gin-example"]
+
+# 轻量级 scratch 链接动态库 因为没有环境，是空镜像
+CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o go-gin-example .
+
+
+####################测试项目的指令
+# 获取token
+http://127.0.0.1:8000/auth?username=test&password=test123456
+
+# 使用token访问
+http://127.0.0.1:8000/api/v1/articles?token=eyJhbGci...
+
+# 多组合
+POST：http://127.0.0.1:8000/api/v1/articles?tag_id=1&title=test1&desc=test-desc&content=test-content&created_by=test-created&state=1
+GET：http://127.0.0.1:8000/api/v1/articles
+GET：http://127.0.0.1:8000/api/v1/articles/1
+PUT：http://127.0.0.1:8000/api/v1/articles/1?tag_id=1&title=test-edit1&desc=test-desc-edit&content=test-content-edit&modified_by=test-created-edit&state=0
+DELETE：http://127.0.0.1:8000/api/v1/articles/1
+
+# swagger相关
+http://127.0.0.1:8000/swagger/index.html
+swag init
