@@ -4,10 +4,14 @@ package routers
 import (
 	_ "github.com/EGGYC/go-gin-example/docs"
 	"github.com/EGGYC/go-gin-example/middleware/jwt"
+	"github.com/EGGYC/go-gin-example/pkg/export"
+	"github.com/EGGYC/go-gin-example/pkg/qrcode"
 	"github.com/EGGYC/go-gin-example/pkg/setting"
+	"github.com/EGGYC/go-gin-example/pkg/upload"
 	"github.com/EGGYC/go-gin-example/routers/api"
 	"github.com/EGGYC/go-gin-example/routers/api/v1"
 	"github.com/gin-gonic/gin"
+	"net/http"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -15,7 +19,13 @@ import (
 
 func InitRouter() *gin.Engine {
 	r := gin.New()
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler)) // swagger api 文档
+
+	r.StaticFS("/export", http.Dir(export.GetExcelFullPath()))
+	r.StaticFS("/upload/images", http.Dir(upload.GetImageFullPath()))
+	r.StaticFS("/qrcode", http.Dir(qrcode.GetQrCodeFullPath()))
+
+	r.POST("/auth", api.GetAuth)
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.POST("/upload", api.UploadImage)
 	// 全局中间件
 	// Logger 中间件将日志写入 gin.DefaultWriter，即使你将 GIN_MODE 设置为 release。
@@ -39,6 +49,7 @@ func InitRouter() *gin.Engine {
 		apiv1.PUT("/tags/:id", v1.EditTag)
 		//删除指定标签
 		apiv1.DELETE("/tags/:id", v1.DeleteTag)
+
 		//获取文章列表
 		apiv1.GET("/articles", v1.GetArticles)
 		//获取指定文章
@@ -49,6 +60,9 @@ func InitRouter() *gin.Engine {
 		apiv1.PUT("/articles/:id", v1.EditArticle)
 		//删除指定文章
 		apiv1.DELETE("/articles/:id", v1.DeleteArticle)
+
+		//生成文章海报
+		apiv1.POST("/articles/poster/generate", v1.GenerateArticlePoster)
 	}
 
 	return r
