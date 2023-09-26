@@ -1,5 +1,8 @@
 // Package upload 由原来基础的file工具包 封装一个专用于图片上传的包，包中的方法都是适用于图片
 // 并且隐藏底层细节
+// 图片上传操作，具体步骤：md5加密文件名字，利用封装好的File包，实现获取图片URL、名称、路径、检查后缀、大小，之后在router中实现
+// im := C.Request.FormFile("image") 得到文件信息
+// r.StaticFS("/.....", http.Dir)可展示文件目录给前端
 package upload
 
 import (
